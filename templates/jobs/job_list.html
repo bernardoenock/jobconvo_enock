@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Jobs{% endblock %}
+{% block content %}
+<h1>Jobs</h1>
+{% if user.company %}
+<a href="{% url 'jobs:job_create' %}">Create job</a>
+{% endif %}
+<ul>
+  {% for job in jobs %}
+  <li>
+    <a href="{% url 'jobs:job_detail' job.pk %}">{{ job.title }}</a>
+    — {{ job.get_salary_band_display }} — {{ job.get_min_education_display }}
+    — Candidates: {{ job.app_count }}
+  </li>
+  {% empty %}
+  <li>No jobs yet</li>
+  {% endfor %}
+</ul>
+{% endblock %}

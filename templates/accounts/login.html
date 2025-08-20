@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Login</h1>
+<form method="post">{% csrf_token %}
+  <p><label>Email</label><input type="email" name="username" required></p>
+  <p><label>Password</label><input type="password" name="password" required></p>
+  <button type="submit">Login</button>
+</form>
+<p>Sign up: <a href="{% url 'company_signup' %}">Company</a> | <a href="{% url 'candidate_signup' %}">Candidate</a></p>
+{% endblock %}

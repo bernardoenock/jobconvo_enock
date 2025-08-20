@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>{{ job.title }}</h1>
+<p><strong>Salary:</strong> {{ job.get_salary_band_display }}</p>
+<p><strong>Min education:</strong> {{ job.get_min_education_display }}</p>
+<p><strong>Requirements:</strong> {{ job.requirements|linebreaks }}</p>
+
+{% if user.candidate %}
+<a href="{% url 'jobs:apply' job.pk %}">Apply</a>
+{% endif %}
+
+{% if user.company and job.company == user.company %}
+<p>
+  <a href="{% url 'jobs:job_update' job.pk %}">Edit</a> |
+  <a href="{% url 'jobs:job_delete' job.pk %}">Delete</a>
+</p>
+<h2>Applicants ({{ job.applications.count }})</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Candidate</th>
+      <th>Salary exp.</th>
+      <th>Education</th>
+      <th>Score</th>
+      <th>Experience</th>
+      <th>Applied</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for app in job.applications.all %}
+    <tr>
+      <td>{{ app.candidate.user.email }}</td>
+      <td>R$ {{ app.salary_expectation }}</td>
+      <td>{{ app.get_candidate_last_education_display }}</td>
+      <td>{{ app.score }}</td>
+      <td>{{ app.candidate_experience|default:"—" }}</td>
+      <td>{{ app.created_at }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="6">No applications</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}
