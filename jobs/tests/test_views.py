@@ -122,7 +122,7 @@ class JobViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Candidatos')
         self.assertContains(response, 'candidato_aplicado@teste.com')
-        self.assertContains(response, 'Pontuação: 2')
+        self.assertContains(response, '<strong>Pontuação:</strong> 2')
 
     def test_jobs_per_month_data(self):
       """Verifica se a view de dados de vagas por mês retorna o JSON correto."""
@@ -196,3 +196,43 @@ class JobViewTest(TestCase):
         data = response.json()
         self.assertEqual(data['labels'], ['2025-01', '2025-02'])
         self.assertEqual(data['datasets'][0]['data'], [1, 1])
+
+
+    def test_my_job_list_view_shows_only_company_jobs(self):
+        """Verifica se a view 'my_jobs' mostra apenas vagas da empresa logada."""
+        job1 = Job.objects.create(
+            company=self.company,
+            title='Vaga Empresa Logada 1',
+            salary_band=Job.SalaryBand.FROM_1K_TO_2K,
+            min_education=Job.MinEducation.SUPERIOR,
+            requirements='Requisitos 1'
+        )
+        job2 = Job.objects.create(
+            company=self.company,
+            title='Vaga Empresa Logada 2',
+            salary_band=Job.SalaryBand.FROM_2K_TO_3K,
+            min_education=Job.MinEducation.SUPERIOR,
+            requirements='Requisitos 2'
+        )
+
+        other_user = User.objects.create_user(email='outra@empresa.com', password='StrongPass!123')
+        other_company = Company.objects.create(user=other_user, name='Outra Empresa')
+        Job.objects.create(
+            company=other_company,
+            title='Vaga Outra Empresa',
+            salary_band=Job.SalaryBand.FROM_1K_TO_2K,
+            min_education=Job.MinEducation.SUPERIOR,
+            requirements='Requisitos outra empresa'
+        )
+
+        self.client.login(email='empresa@teste.com', password='StrongPass!123')
+        response = self.client.get(reverse('jobs:my_jobs'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'jobs/job_list.html')
+        jobs_list = list(response.context['jobs'])
+        
+        self.assertIn(job1, jobs_list)
+        self.assertIn(job2, jobs_list)
+        self.assertEqual(len(jobs_list), 2)
+        self.assertNotIn(Job.objects.get(title='Vaga Outra Empresa'), jobs_list)
