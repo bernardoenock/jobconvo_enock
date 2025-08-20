@@ -71,3 +71,37 @@ python -m venv .venv && source .venv/bin/activate
 - [] Se dentro ou acima da escolaridade, adiciona 1 ponto
 
 
+
+## Utils scripts
+
+Limpar migrations:
+```shell
+rm -r accounts/migrations/
+rm -r jobs/migrations/
+
+```
+
+Criar migrations:
+```shell
+python3 manage.py makemigrations accounts jobs
+
+python3 manage.py migrate
+```
+
+Criar super usuario para acessar o admin:
+```shell
+python3 manage.py createsuperuser
+
+```
+
+Levantar servidor:
+```shell
+python3 manage.py runserver
+
+```
+
+Executar os testes:
+```shell
+python3 manage.py test
+
+```
