@@ -30,9 +30,10 @@
         <li><a href="{% url 'jobs:job_list' %}">Minhas Candidaturas</a></li>
         {% endif %}
 
-        <li><a href="{% url 'accounts:logout' %}">Logout</a></li>
+        <li><a href="{% url 'accounts:logout' %}" class="btn">Logout</a></li>
         {% else %}
-        <li><a href="{% url 'accounts:login' %}">Login</a></li>
+        <li><a href="{% url 'jobs:job_list' %}">Todas as Vagas</a></li>
+        <li><a href="{% url 'accounts:login' %}" class="btn">Login</a></li>
         <li><a href="{% url 'accounts:company_signup' %}" class="btn">Cadastre sua Empresa</a></li>
         <li><a href="{% url 'accounts:candidate_signup' %}" class="btn">Procure sua vaga ideal</a></li>
         {% endif %}

@@ -13,7 +13,7 @@ def redirect_if_logged_in(view_func):
     """
     def _wrapper(request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('jobs:job_list') # Ou para a URL de sua preferência
+            return redirect('jobs:job_list')
         return view_func(request, *args, **kwargs)
     return _wrapper
 
@@ -30,7 +30,7 @@ class CompanySignUpView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user) # Faz o login do usuário
+            login(request, user)
             return redirect('jobs:job_list')
         return render(request, self.template_name, {'form': form})
 
@@ -47,6 +47,6 @@ class CandidateSignUpView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user) # Faz o login do usuário
+            login(request, user)
             return redirect('jobs:job_list')
         return render(request, self.template_name, {'form': form})

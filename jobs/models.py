@@ -76,5 +76,3 @@ class Application(models.Model):
   def save(self, *args, **kwargs):
     self.score = self.compute_score()
     super().save(*args, **kwargs)
-
-    

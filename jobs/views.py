@@ -185,7 +185,7 @@ def jobs_per_month(request):
         .order_by('month'))
   labels = [q['month'].strftime('%Y-%m') for q in qs]
   data = [q['count'] for q in qs]
-  return JsonResponse({'labels': labels, 'datasets': [{'label': 'Jobs per month', 'data': data}]})
+  return JsonResponse({'labels': labels, 'datasets': [{'label': 'Vagas por mês', 'data': data}]})
 
 
 @login_required
@@ -197,7 +197,7 @@ def apps_per_month(request):
         .order_by('month'))
   labels = [q['month'].strftime('%Y-%m') for q in qs]
   data = [q['count'] for q in qs]
-  return JsonResponse({'labels': labels, 'datasets': [{'label': 'Applications per Month', 'data': data}]})
+  return JsonResponse({'labels': labels, 'datasets': [{'label': 'Aplicações por mês', 'data': data}]})
 
 @login_required
 def candidates_per_month(request):
