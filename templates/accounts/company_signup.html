@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
 {% block title %}Company Signup{% endblock %}
 {% block content %}
-<h1>Register as Company</h1>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Sign Up</button>
-</form>
-<p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+<div class="auth-container">
+  <h1>Cadastre-se como Empresa</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Criar Conta</button>
+  </form>
+  <p>
+    Já tem uma conta? <a href="{% url 'accounts:login' %}">Faça Login</a>.
+  </p>
+</div>
 {% endblock %}

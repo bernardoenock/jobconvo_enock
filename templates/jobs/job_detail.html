@@ -1,47 +1,38 @@
 {% extends 'base.html' %}
+{% block title %}{{ job.title }}{% endblock %}
 {% block content %}
-<h1>{{ job.title }}</h1>
-<p><strong>Salary:</strong> {{ job.get_salary_band_display }}</p>
-<p><strong>Min education:</strong> {{ job.get_min_education_display }}</p>
-<p><strong>Requirements:</strong> {{ job.requirements|linebreaks }}</p>
+<div class="container">
+  <h1>{{ job.title }}</h1>
+  <p><strong>Empresa:</strong> {{ job.company.name }}</p>
+  <p><strong>Faixa Salarial:</strong> {{ job.get_salary_band_display }}</p>
+  <p><strong>Escolaridade Mínima:</strong> {{ job.get_min_education_display }}</p>
+  <p><strong>Requisitos:</strong> {{ job.requirements }}</p>
 
-{% if user.candidate %}
-<a href="{% url 'jobs:apply' job.pk %}">Apply</a>
-{% endif %}
-
-{% if user.company and job.company == user.company %}
-<p>
-  <a href="{% url 'jobs:job_update' job.pk %}">Edit</a> |
-  <a href="{% url 'jobs:job_delete' job.pk %}">Delete</a>
-</p>
-<h2>Applicants ({{ job.applications.count }})</h2>
-<table>
-  <thead>
-    <tr>
-      <th>Candidate</th>
-      <th>Salary exp.</th>
-      <th>Education</th>
-      <th>Score</th>
-      <th>Experience</th>
-      <th>Applied</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for app in job.applications.all %}
-    <tr>
-      <td>{{ app.candidate.user.email }}</td>
-      <td>R$ {{ app.salary_expectation }}</td>
-      <td>{{ app.get_candidate_last_education_display }}</td>
-      <td>{{ app.score }}</td>
-      <td>{{ app.candidate_experience|default:"—" }}</td>
-      <td>{{ app.created_at }}</td>
-    </tr>
+  {% if applications %}
+  <h2>Candidatos</h2>
+  <ul class="jobs-list">
+    {% for application in applications %}
+    <li>
+      <strong>Email:</strong> {{ application.candidate.user.email }}<br>
+      <strong>Pretensão Salarial:</strong> R$ {{ application.salary_expectation }}<br>
+      <strong>Última Escolaridade:</strong> {{ application.get_candidate_last_education_display }}<br>
+      <strong>Experiência:</strong> {{ application.candidate_experience }}<br>
+      <strong>Pontuação:</strong> {{ application.score }}
+    </li>
     {% empty %}
-    <tr>
-      <td colspan="6">No applications</td>
-    </tr>
+    <li>Ainda não há candidatos para esta vaga.</li>
     {% endfor %}
-  </tbody>
-</table>
-{% endif %}
+  </ul>
+  {% endif %}
+
+  {% if user.is_authenticated and user.candidate %}
+  {% if not has_applied %}
+  <a href="{% url 'jobs:apply' job.pk %}" class="btn">Candidatar-se</a>
+  {% else %}
+  <p>Você já aplicou para esta vaga ✅</p>
+  {% endif %}
+  {% elif not user.is_authenticated %}
+  <p><a href="{% url 'accounts:login' %}">Faça login</a> como candidato para se inscrever.</p>
+  {% endif %}
+</div>
 {% endblock %}

@@ -1,8 +1,15 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Apply to {{ job.title }}{% endblock %}
 {% block content %}
-<h1>Apply to {{ job.title }}</h1>
-<form method="post">{% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Submit application</button>
-</form>
+<div class="auth-container">
+  <h1>Apply to {{ job.title }}</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" class="btn mt-3">Submit application</button>
+    <a href="{% url 'jobs:job_detail' job.pk %}" class="btn btn-secondary mt-3">Cancelar</a>
+  </form>
+</div>
 {% endblock %}

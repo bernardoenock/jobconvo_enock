@@ -12,17 +12,31 @@
 
 <body>
   <header>
-    <nav>
-      <a href="{% url 'jobs:job_list' %}">Jobs</a>
-      <a href="{% url 'jobs:reports' %}">Reports</a>
-      {% if user.is_authenticated %}
-      <span>{{ user.email }}</span>
-      <a href="{% url 'logout' %}">Logout</a>
-      {% else %}
-      <a href="{% url 'login' %}">Login</a>
-      {% endif %}
+    <nav class="jobconvo-nav">
+      <a href="{% url 'jobs:job_list' %}" class="logo">
+        <img src="https://www.jobconvo.com/wp-content/uploads/2024/07/Logo-JobConvo-by-Senior_grey-1.webp"
+          alt="JobConvo Logo">
+      </a>
+
+      <ul class="menu">
+        {% if user.is_authenticated %}
+        <li><span>{{ user.email }}</span></li>
+
+        {% if user.company %}
+        <li><a href="{% url 'jobs:job_create' %}">Nova Vaga</a></li>
+        <li><a href="{% url 'jobs:reports' %}">Relatórios</a></li>
+        {% elif user.candidate %}
+        <li><a href="{% url 'jobs:job_list' %}">Minhas Candidaturas</a></li>
+        {% endif %}
+
+        <li><a href="{% url 'accounts:logout' %}">Logout</a></li>
+        {% else %}
+        <li><a href="{% url 'accounts:login' %}">Login</a></li>
+        {% endif %}
+      </ul>
     </nav>
   </header>
+
   <main>{% block content %}{% endblock %}</main>
 </body>
 
