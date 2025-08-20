@@ -10,9 +10,10 @@ urlpatterns = [
   path('jobs/<int:pk>/edit/', views.JobUpdateView.as_view(), name='job_update'),
   path('jobs/<int:pk>/delete/', views.JobDeleteView.as_view(), name='job_delete'),
 
-  path('jobs/<int:pk>/apply/', views.apply_to_job, name='apply'),
+  path('jobs/<int:pk>/apply/', views.ApplyView.as_view(), name='apply'),
 
   path('reports/', views.reports, name='reports'),
   path('reports/data/jobs-per-month/', views.jobs_per_month, name='jobs_per_month'),
   path('reports/data/apps-per-month/', views.apps_per_month, name='apps_per_month'),
+  path('reports/data/candidates-per-month/', views.candidates_per_month, name='candidates_per_month'),
 ]

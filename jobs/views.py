@@ -5,6 +5,7 @@ from django.db.models.functions import TruncMonth
 from django.http import JsonResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from accounts.models import Company, Candidate
@@ -31,6 +32,16 @@ class JobDetailView(DetailView):
   model = Job
   template_name = 'jobs/job_detail.html'
   context_object_name = 'job'
+
+  def get_context_data(self, **kwargs):
+    context = super().get_context_data(**kwargs)
+    
+    # Se o usuário logado for uma empresa e a vaga pertencer a ele
+    if hasattr(self.request.user, 'company') and self.object.company == self.request.user.company:
+      # Inclua a lista de candidaturas no contexto, ordenadas por pontuação
+      context['applications'] = self.object.applications.all().order_by('-score')
+      
+    return context
 
 class JobCreateView(LoginRequiredMixin, CompanyRequiredMixin, CreateView):
   model = Job
@@ -63,6 +74,68 @@ class JobDeleteView(LoginRequiredMixin, CompanyRequiredMixin, DeleteView):
   def get_queryset(self):
     return Job.objects.filter(company=self.request.user.company)
 
+class JobDetailView(DetailView):
+    model = Job
+    template_name = 'jobs/job_detail.html'
+    context_object_name = 'job'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        # Se o usuário logado for empresa e dono da vaga
+        if hasattr(user, 'company') and self.object.company == user.company:
+            context['applications'] = self.object.applications.all().order_by('-score')
+
+        # Se o usuário for candidato, verifica se já aplicou
+        if hasattr(user, 'candidate'):
+            context['has_applied'] = self.object.applications.filter(candidate=user.candidate).exists()
+
+        return context
+
+class ApplyView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        job = get_object_or_404(Job, pk=pk)
+
+        if not hasattr(request.user, 'candidate'):
+            raise Http404("Only candidates can apply.")
+
+        candidate = request.user.candidate
+
+        # Verifica se o candidato já aplicou
+        if Application.objects.filter(job=job, candidate=candidate).exists():
+            return redirect('jobs:job_detail', pk=job.pk)
+
+        form = ApplicationForm(initial={
+            'candidate_last_education': candidate.last_education,
+            'candidate_experience': candidate.experience,
+        })
+
+        return render(request, 'jobs/apply.html', {'form': form, 'job': job})
+
+    def post(self, request, pk):
+        job = get_object_or_404(Job, pk=pk)
+
+        if not hasattr(request.user, 'candidate'):
+            raise Http404("Only candidates can apply.")
+
+        candidate = request.user.candidate
+        form = ApplicationForm(request.POST)
+
+        if form.is_valid():
+            # Cria a candidatura
+            Application.objects.create(
+                job=job,
+                candidate=candidate,
+                salary_expectation=form.cleaned_data['salary_expectation'],
+                candidate_last_education=form.cleaned_data['candidate_last_education'],
+                candidate_experience=form.cleaned_data['candidate_experience']
+            )
+            return redirect('jobs:job_detail', pk=job.pk)
+
+        return render(request, 'jobs/apply.html', {'form': form, 'job': job})
+
+
 @login_required
 def reports(request):
   if not hasattr(request.user, 'company'):
@@ -80,12 +153,19 @@ def apply_to_job(request, pk):
   candidate = request.user.candidate
   
   if request.method == 'POST':
-    form = ApplicationForm(request.POST, candidate=candidate, job=job)
+    form = ApplicationForm(request.POST) # Apenas dados do formulário
     if form.is_valid():
-      form.save()
+      # Cria a Application com os dados do form e os objetos de Job e Candidate
+      Application.objects.create(
+        job=job,
+        candidate=candidate,
+        salary_expectation=form.cleaned_data['salary_expectation'],
+        candidate_last_education=form.cleaned_data['candidate_last_education'],
+        candidate_experience=form.cleaned_data['candidate_experience']
+      )
       return redirect('jobs:job_detail', pk=job.pk)
   else:
-    form = ApplicationForm(candidate=candidate, job=job, initial={
+    form = ApplicationForm(initial={
       'candidate_last_education': candidate.last_education,
       'candidate_experience': candidate.experience,
     })
@@ -115,3 +195,21 @@ def apps_per_month(request):
   labels = [q['month'].strftime('%Y-%m') for q in qs]
   data = [q['count'] for q in qs]
   return JsonResponse({'labels': labels, 'datasets': [{'label': 'Applications per Month', 'data': data}]})
+
+@login_required
+def candidates_per_month(request):
+    data = (
+        Application.objects.annotate(month=TruncMonth('created_at'))
+        .values('month')
+        .annotate(total=Count('id'))
+        .order_by('month')
+    )
+    labels = [item['month'].strftime('%Y-%m') for item in data]
+    counts = [item['total'] for item in data]
+    return JsonResponse({
+        'labels': labels,
+        'datasets': [{
+            'label': 'Candidatos por mês',
+            'data': counts
+        }]
+    })

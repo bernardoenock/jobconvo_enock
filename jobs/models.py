@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from accounts.models import Company, Candidate
 
 class Job(models.Model):
@@ -22,7 +23,7 @@ class Job(models.Model):
   salary_band = models.IntegerField(choices=SalaryBand.choices)
   requirements = models.TextField()
   min_education = models.IntegerField(choices=MinEducation.choices)
-  created_at = models.DateTimeField(auto_now_add=True)
+  created_at = models.DateTimeField(default=timezone.now)
 
   def __str__(self):
     return f'{self.title} @ {self.company}'
@@ -40,7 +41,7 @@ class Application(models.Model):
   candidate_experience = models.TextField(blank=True)
 
   score = models.PositiveSmallIntegerField(default=0)
-  created_at = models.DateTimeField(auto_now_add=True)
+  created_at = models.DateTimeField(default=timezone.now)
 
   class Meta:
     unique_together = ('job', 'candidate')
@@ -63,16 +64,14 @@ class Application(models.Model):
     s = float(self.salary_expectation)
     band = self.job.salary_band
 
-    if band == Job.SalaryBand.UP_TO_1K and s <= 1000:
-      return True
-    
-    if band == Job.SalaryBand.FROM_1K_TO_2K and 1000 <= s <= 2000:
-      return True
-    
-    if band == Job.SalaryBand.FROM_2K_TO_3K and 2000 <= s <= 3000:
-      return True
-    
-    return False
+    salary_map = {
+        Job.SalaryBand.UP_TO_1K: lambda val: val <= 1000,
+        Job.SalaryBand.FROM_1K_TO_2K: lambda val: 1000 <= val <= 2000,
+        Job.SalaryBand.FROM_2K_TO_3K: lambda val: 2000 <= val <= 3000,
+        Job.SalaryBand.ABOVE_3K: lambda val: val > 3000,
+    }
+
+    return salary_map.get(band, lambda val: False)(s)
   
   def save(self, *args, **kwargs):
     self.score = self.compute_score()
