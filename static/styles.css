@@ -45,8 +45,12 @@ body {
 }
 
 .jobconvo-nav .menu li a:hover {
-  background-color: #816ae1;
+  background-color: #a697e2;
   color: #fff;
+}
+
+.jobconvo-nav .menu li a.btn {
+  color: #ffffff;
 }
 
 /* Buttons */

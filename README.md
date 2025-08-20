@@ -79,6 +79,8 @@ Limpar migrations:
 rm -r accounts/migrations/
 rm -r jobs/migrations/
 
+rm db.sqlite3
+
 ```
 
 Criar migrations:
