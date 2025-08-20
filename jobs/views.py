@@ -20,6 +20,16 @@ class CandidateRequiredMixin(UserPassesTestMixin):
   def test_func(self):
     return hasattr(self.request.user, 'candidate')
   
+class MyJobListView(LoginRequiredMixin, ListView):
+    model = Job
+    template_name = 'jobs/job_list.html'
+    context_object_name = 'jobs'
+
+    def get_queryset(self):
+        if hasattr(self.request.user, 'company'):
+            return Job.objects.filter(company=self.request.user.company).annotate(app_count=Count('applications')).order_by('-created_at')
+        return Job.objects.none()
+
 class JobListView(ListView):
   model = Job
   template_name = 'jobs/job_list.html'
@@ -36,9 +46,7 @@ class JobDetailView(DetailView):
   def get_context_data(self, **kwargs):
     context = super().get_context_data(**kwargs)
     
-    # Se o usuário logado for uma empresa e a vaga pertencer a ele
     if hasattr(self.request.user, 'company') and self.object.company == self.request.user.company:
-      # Inclua a lista de candidaturas no contexto, ordenadas por pontuação
       context['applications'] = self.object.applications.all().order_by('-score')
       
     return context
@@ -83,11 +91,9 @@ class JobDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        # Se o usuário logado for empresa e dono da vaga
         if hasattr(user, 'company') and self.object.company == user.company:
             context['applications'] = self.object.applications.all().order_by('-score')
 
-        # Se o usuário for candidato, verifica se já aplicou
         if hasattr(user, 'candidate'):
             context['has_applied'] = self.object.applications.filter(candidate=user.candidate).exists()
 
@@ -102,7 +108,6 @@ class ApplyView(LoginRequiredMixin, View):
 
         candidate = request.user.candidate
 
-        # Verifica se o candidato já aplicou
         if Application.objects.filter(job=job, candidate=candidate).exists():
             return redirect('jobs:job_detail', pk=job.pk)
 
@@ -123,7 +128,6 @@ class ApplyView(LoginRequiredMixin, View):
         form = ApplicationForm(request.POST)
 
         if form.is_valid():
-            # Cria a candidatura
             Application.objects.create(
                 job=job,
                 candidate=candidate,
@@ -153,9 +157,8 @@ def apply_to_job(request, pk):
   candidate = request.user.candidate
   
   if request.method == 'POST':
-    form = ApplicationForm(request.POST) # Apenas dados do formulário
+    form = ApplicationForm(request.POST)
     if form.is_valid():
-      # Cria a Application com os dados do form e os objetos de Job e Candidate
       Application.objects.create(
         job=job,
         candidate=candidate,
