@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Apagar Vaga{% endblock %}
+{% block content %}
+<div class="container">
+  <h2>Apagar Vaga: {{ object.title }}</h2>
+  <p>Tem certeza de que deseja apagar esta vaga? Esta ação não pode ser desfeita.</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+    <a href="{% url 'jobs:job_detail' object.pk %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

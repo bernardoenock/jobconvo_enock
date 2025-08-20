@@ -11,7 +11,12 @@
     <button type="submit" class="btn mt-3">
       {% if object %}Salvar Alterações{% else %}Criar Vaga{% endif %}
     </button>
+
+    {% if user.is_authenticated and user.company %}
     <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary mt-3">Cancelar</a>
+    {% else %}
+    <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary mt-3">Cancelar</a>
+    {% endif %}
   </form>
 </div>
 {% endblock %}

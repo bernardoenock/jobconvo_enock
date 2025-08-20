@@ -3,8 +3,9 @@
 {% block content %}
 <div class="container">
   <h1>Jobs</h1>
+
   {% if user.company %}
-  <a href="{% url 'jobs:job_create' %}" class="btn mb-3">Create job</a>
+  <a href="{% url 'jobs:job_create' %}" class="btn mb-3">Criar nova vaga</a>
   {% endif %}
 
   <ul class="jobs-list">

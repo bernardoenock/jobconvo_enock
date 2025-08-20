@@ -25,13 +25,18 @@
   </ul>
   {% endif %}
 
-  {% if user.is_authenticated and user.candidate %}
+  {% if user.is_authenticated %}
+  {% if user.company and job.company == user.company %}
+  <a href="{% url 'jobs:job_update' job.pk %}" class="btn btn-primary">Editar Vaga</a>
+  <a href="{% url 'jobs:job_delete' job.pk %}" class="btn btn-danger">Apagar Vaga</a>
+  {% elif user.candidate %}
   {% if not has_applied %}
   <a href="{% url 'jobs:apply' job.pk %}" class="btn">Candidatar-se</a>
   {% else %}
   <p>Você já aplicou para esta vaga ✅</p>
   {% endif %}
-  {% elif not user.is_authenticated %}
+  {% endif %}
+  {% else %}
   <p><a href="{% url 'accounts:login' %}">Faça login</a> como candidato para se inscrever.</p>
   {% endif %}
 </div>
