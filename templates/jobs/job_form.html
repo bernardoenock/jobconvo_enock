@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="auth-container">
+  <h2 class="my-4">
+    {% if object %}Editar Vaga{% else %}Criar Nova Vaga{% endif %}
+  </h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" class="btn mt-3">
+      {% if object %}Salvar Alterações{% else %}Criar Vaga{% endif %}
+    </button>
+    <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary mt-3">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

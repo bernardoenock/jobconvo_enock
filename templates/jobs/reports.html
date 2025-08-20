@@ -1,25 +1,72 @@
 {% extends 'base.html' %}
+{% block title %}Reports{% endblock %}
 {% block content %}
-<h1>Reports</h1>
+<div class="container">
+  <h1>Reports</h1>
 
-<canvas id="jobsChart"></canvas>
-<canvas id="appsChart"></canvas>
+  <!-- Jobs per Month -->
+  <div class="chart-card">
+    <h2>Jobs per Month</h2>
+    <canvas id="jobsChart" height="400"></canvas>
+  </div>
+
+  <!-- Applications per Month -->
+  <div class="chart-card">
+    <h2>Applications per Month</h2>
+    <canvas id="appsChart" height="400"></canvas>
+  </div>
+
+  <!-- Candidates per Month -->
+  <div class="chart-card">
+    <h2>Candidates per Month</h2>
+    <canvas id="candidatesChart" height="400"></canvas>
+  </div>
+</div>
 
 <script>
-  async function makeChart(canvasId, url) {
-    const ctx = document.getElementById(canvasId).getContext('2d');
-    const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-    const data = await res.json();
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: data.labels,
-        datasets: data.datasets
-      },
-      options: { responsive: true, maintainAspectRatio: false }
-    });
-  }
-  makeChart('jobsChart', "{% url 'jobs:jobs_per_month' %}");
-  makeChart('appsChart', "{% url 'jobs:apps_per_month' %}");
+  document.addEventListener('DOMContentLoaded', () => {
+    async function makeChart(canvasId, url) {
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      const data = await res.json();
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: data.datasets.map(ds => ({
+            ...ds,
+            borderColor: '#816ae1',
+            backgroundColor: 'rgba(129,106,225,0.2)',
+            fill: true,
+            tension: 0.3
+          }))
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: data.datasets[0]?.label || '',
+              font: { size: 18, weight: 'bold' },
+              padding: { top: 10, bottom: 10 }
+            },
+            legend: {
+              display: true,
+              position: 'bottom'
+            }
+          },
+          scales: {
+            y: { beginAtZero: true },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    makeChart('jobsChart', "{% url 'jobs:jobs_per_month' %}");
+    makeChart('appsChart', "{% url 'jobs:apps_per_month' %}");
+    makeChart('candidatesChart', "{% url 'jobs:candidates_per_month' %}");
+  });
 </script>
 {% endblock %}
