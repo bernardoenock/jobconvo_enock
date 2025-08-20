@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Reports</h1>
+
+<canvas id="jobsChart"></canvas>
+<canvas id="appsChart"></canvas>
+
+<script>
+  async function makeChart(canvasId, url) {
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    const data = await res.json();
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.labels,
+        datasets: data.datasets
+      },
+      options: { responsive: true, maintainAspectRatio: false }
+    });
+  }
+  makeChart('jobsChart', "{% url 'jobs:jobs_per_month' %}");
+  makeChart('appsChart', "{% url 'jobs:apps_per_month' %}");
+</script>
+{% endblock %}
