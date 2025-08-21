@@ -1,0 +1,78 @@
+/* Reset básico e tipografia */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Nunito", sans-serif;
+  color: #222228;
+  background-color: #fbfaf9;
+  line-height: 1.6;
+}
+
+/* Layout Container */
+main {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Responsividade do Header/Nav */
+.jobconvo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+.jobconvo-nav .logo img {
+  height: 45px;
+}
+
+/* Botão para mobile */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #222228;
+}
+
+/* Menu Desktop */
+.menu {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+/* Menu Mobile (inicialmente escondido) */
+.menu.open {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 70px;
+  right: 20px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .menu {
+    display: none;
+  }
+  .menu-toggle {
+    display: block;
+  }
+  main {
+    padding: 15px;
+  }
+}
