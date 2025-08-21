@@ -13,6 +13,9 @@ urlpatterns = [
 
   path('jobs/<int:pk>/apply/', views.ApplyView.as_view(), name='apply'),
 
+  path('jobs/<int:job_pk>/candidates/', views.CandidateListView.as_view(), name='candidate_list'),
+  path('candidates/<int:pk>/', views.CandidateDetailView.as_view(), name='candidate_detail'),
+
   path('reports/', views.reports, name='reports'),
   path('reports/data/jobs-per-month/', views.jobs_per_month, name='jobs_per_month'),
   path('reports/data/apps-per-month/', views.apps_per_month, name='apps_per_month'),

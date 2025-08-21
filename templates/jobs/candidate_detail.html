@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}{{ candidate.user.email }}{% endblock %}
+{% block content %}
+<div class="candidate-detail-container">
+  <div class="back-btn-container">
+    <a href="javascript:history.back()" class="btn btn-back">← Voltar</a>
+  </div>
+
+  <div class="candidate-card-detail">
+    <h1>{{ candidate.user.email }}</h1>
+    <p><strong>Última Escolaridade:</strong> {{ candidate.get_last_education_display }}</p>
+    <p><strong>Experiência:</strong> {{ candidate.experience }}</p>
+
+    <h2>Vagas Aplicadas</h2>
+    <ul>
+      {% for app in candidate.applications.all %}
+      {% if app.job.company == user.company %}
+      <li>{{ app.job.title }} - Pontuação: {{ app.score }}</li>
+      {% endif %}
+      {% empty %}
+      <li>Nenhuma vaga aplicada ainda.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Candidatos - {{ job.title }}{% endblock %}
+{% block content %}
+<div class="candidates-container">
+  <h1>Candidatos para "{{ job.title }}"</h1>
+  <div class="back-btn-container">
+    <a href="{% url 'jobs:job_detail' job.pk %}" class="btn btn-back">← Voltar</a>
+  </div>
+
+  <div class="candidates-grid">
+    {% for application in applications %}
+    <a href="{% url 'jobs:candidate_detail' application.candidate.pk %}" class="candidate-card">
+      <h3>{{ application.candidate.user.email }}</h3>
+      <p>Última Escolaridade: {{ application.candidate.get_last_education_display }}</p>
+      <p>Pontuação: {{ application.score }}</p>
+    </a>
+    {% empty %}
+    <p>Nenhum candidato para esta vaga ainda 🚀</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

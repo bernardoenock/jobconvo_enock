@@ -236,3 +236,137 @@ class JobViewTest(TestCase):
         self.assertIn(job2, jobs_list)
         self.assertEqual(len(jobs_list), 2)
         self.assertNotIn(Job.objects.get(title='Vaga Outra Empresa'), jobs_list)
+
+    def test_candidate_list_view_access(self):
+        """Empresa logada deve ver apenas candidatos das suas vagas, outra empresa recebe 404."""
+        job = Job.objects.create(
+            company=self.company,
+            title='Vaga Teste',
+            salary_band=Job.SalaryBand.FROM_1K_TO_2K,
+            min_education=Job.MinEducation.SUPERIOR,
+            requirements='Requisitos teste'
+        )
+        other_user = User.objects.create_user(email='outro@teste.com', password='StrongPass!123')
+        other_candidate = Candidate.objects.create(user=other_user, last_education=Candidate.Education.SUPERIOR)
+        Application.objects.create(
+            job=job,
+            candidate=other_candidate,
+            salary_expectation=1500,
+            candidate_last_education=Candidate.Education.SUPERIOR
+        )
+
+        self.client.login(email='empresa@teste.com', password='StrongPass!123')
+        response = self.client.get(reverse('jobs:candidate_list', args=[job.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'outro@teste.com')
+
+        another_user = User.objects.create_user(email='outra@empresa.com', password='StrongPass!123')
+        another_company = Company.objects.create(user=another_user, name='Outra Empresa')
+        self.client.login(email='outra@empresa.com', password='StrongPass!123')
+        response = self.client.get(reverse('jobs:candidate_list', args=[job.pk]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_candidate_detail_view_access(self):
+        """Empresa logada deve acessar apenas candidatos que aplicaram suas vagas."""
+        job = Job.objects.create(
+            company=self.company,
+            title='Vaga Teste',
+            salary_band=Job.SalaryBand.FROM_1K_TO_2K,
+            min_education=Job.MinEducation.SUPERIOR,
+            requirements='Requisitos teste'
+        )
+        candidate_user = User.objects.create_user(email='aplicou@teste.com', password='StrongPass!123')
+        candidate = Candidate.objects.create(user=candidate_user, last_education=Candidate.Education.SUPERIOR)
+        Application.objects.create(
+            job=job,
+            candidate=candidate,
+            salary_expectation=1500,
+            candidate_last_education=Candidate.Education.SUPERIOR
+        )
+
+        self.client.login(email='empresa@teste.com', password='StrongPass!123')
+        response = self.client.get(reverse('jobs:candidate_detail', args=[candidate.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'aplicou@teste.com')
+
+        another_user = User.objects.create_user(email='outra@empresa.com', password='StrongPass!123')
+        Company.objects.create(user=another_user, name='Outra Empresa')
+        self.client.login(email='outra@empresa.com', password='StrongPass!123')
+        response = self.client.get(reverse('jobs:candidate_detail', args=[candidate.pk]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_apply_view_get_and_post(self):
+        """Testa ApplyView: GET mostra formulário, POST cria Application."""
+        job = Job.objects.create(
+            company=self.company,
+            title='Vaga Teste Apply',
+            salary_band=Job.SalaryBand.FROM_1K_TO_2K,
+            min_education=Job.MinEducation.SUPERIOR,
+            requirements='Requisitos teste'
+        )
+
+        self.client.login(email='candidato@teste.com', password='StrongPass!123')
+        response = self.client.get(reverse('jobs:apply', args=[job.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<form')
+
+        valid_data = {
+            'salary_expectation': 1200,
+            'candidate_last_education': Candidate.Education.MEDIO,
+            'candidate_experience': 'Experiência teste'
+        }
+        response = self.client.post(reverse('jobs:apply', args=[job.pk]), data=valid_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Application.objects.filter(job=job, candidate=self.candidate).exists())
+
+        self.client.login(email='empresa@teste.com', password='StrongPass!123')
+        response = self.client.get(reverse('jobs:apply', args=[job.pk]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_apps_per_month_data(self):
+        """Verifica se a view apps_per_month retorna JSON correto."""
+        job = Job.objects.create(
+            company=self.company,
+            title='Vaga Teste Apps',
+            salary_band=Job.SalaryBand.FROM_1K_TO_2K,
+            min_education=Job.MinEducation.SUPERIOR
+        )
+        candidate_user_jan = User.objects.create_user(email='jan@teste.com', password='StrongPass!123')
+        candidate_jan = Candidate.objects.create(user=candidate_user_jan, last_education=Candidate.Education.MEDIO)
+
+        candidate_user_feb = User.objects.create_user(email='feb@teste.com', password='StrongPass!123')
+        candidate_feb = Candidate.objects.create(user=candidate_user_feb, last_education=Candidate.Education.SUPERIOR)
+
+        Application.objects.create(
+            job=job,
+            candidate=candidate_jan,
+            salary_expectation=1000,
+            candidate_last_education=Candidate.Education.MEDIO,
+            created_at=timezone.datetime(2025, 1, 5, tzinfo=timezone.utc)
+        )
+
+        Application.objects.create(
+            job=job,
+            candidate=candidate_feb,
+            salary_expectation=1500,
+            candidate_last_education=Candidate.Education.SUPERIOR,
+            created_at=timezone.datetime(2025, 2, 5, tzinfo=timezone.utc)
+        )
+
+        self.client.login(email='empresa@teste.com', password='StrongPass!123')
+        response = self.client.get(reverse('jobs:apps_per_month'))
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['labels'], ['2025-01', '2025-02'])
+        self.assertEqual(data['datasets'][0]['data'], [1, 1])
+
+    def test_reports_view_access(self):
+        """Apenas empresas podem acessar reports."""
+        self.client.login(email='empresa@teste.com', password='StrongPass!123')
+        response = self.client.get(reverse('jobs:reports'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'jobs/reports.html')
+
+        self.client.login(email='candidato@teste.com', password='StrongPass!123')
+        response = self.client.get(reverse('jobs:reports'))
+        self.assertEqual(response.status_code, 404)

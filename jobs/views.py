@@ -20,6 +20,35 @@ class CandidateRequiredMixin(UserPassesTestMixin):
   def test_func(self):
     return hasattr(self.request.user, 'candidate')
   
+class CandidateListView(LoginRequiredMixin, CompanyRequiredMixin, ListView):
+    model = Application
+    template_name = 'jobs/candidate_list.html'
+    context_object_name = 'applications'
+
+    def get_queryset(self):
+        job = get_object_or_404(Job, pk=self.kwargs['job_pk'])
+        if job.company != self.request.user.company:
+            raise Http404("Você não tem permissão para ver estes candidatos.")
+        return job.applications.select_related('candidate', 'candidate__user').order_by('-score')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['job'] = get_object_or_404(Job, pk=self.kwargs['job_pk'])
+        return context
+
+class CandidateDetailView(LoginRequiredMixin, CompanyRequiredMixin, DetailView):
+    model = Candidate
+    template_name = 'jobs/candidate_detail.html'
+    context_object_name = 'candidate'
+
+    def get_object(self, queryset=None):
+        candidate = get_object_or_404(Candidate, pk=self.kwargs['pk'])
+        # Check if candidate has applied to any job of the company
+        if not Application.objects.filter(candidate=candidate, job__company=self.request.user.company).exists():
+            raise Http404("Você não tem permissão para ver este candidato.")
+        return candidate
+
+  
 class MyJobListView(LoginRequiredMixin, ListView):
     model = Job
     template_name = 'jobs/job_list.html'
