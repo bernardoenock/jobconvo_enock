@@ -1,109 +1,130 @@
-# Teste técnico Python + Django
+# 🏢 JobConvo - Sistema de Vagas (Python + Django)
 
-Sistema usando Python 3.6+ e Django 4+.
+![Python](https://img.shields.io/badge/Python-3.8+-blue)
+![Django](https://img.shields.io/badge/Django-4+-green)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-Obs: Optei por usar o python 3.8, pois o 3.6 não é compativel com Django 4. (veja)[https://docs.djangoproject.com/en/5.2/releases/4.0/#python-compatibility]
+**JobConvo** é um sistema completo de gestão de vagas e candidaturas.  
+Empresas publicam vagas, candidatos se inscrevem, e relatórios são gerados automaticamente com avaliação de perfil.
 
-## Executar:
+**O sistema foi feito para um teste técnico**
 
-```shell
+---
 
-python -m venv .venv && source .venv/bin/activate
+## 📌 Sumário
 
+- [� JobConvo - Sistema de Vagas (Python + Django)](#-jobconvo---sistema-de-vagas-python--django)
+  - [📌 Sumário](#-sumário)
+  - [🌐 Acesso](#-acesso)
+  - [⚡ Tecnologias](#-tecnologias)
+  - [🚀 Funcionalidades](#-funcionalidades)
+    - [👤 Controle de usuários](#-controle-de-usuários)
+    - [💼 Vagas](#-vagas)
+    - [📝 Candidatura](#-candidatura)
+    - [📊 Relatórios](#-relatórios)
+  - [⚙️ Instalação Rápida](#️-instalação-rápida)
+  - [✅ Testes](#-testes)
+  - [📊 Dashboard \& Pontuação](#-dashboard--pontuação)
+  - [👨‍💻 Autor](#-autor)
+
+---
+
+## 🌐 Acesso
+
+[🔗 Teste o sistema online](https://bernardoenock.pythonanywhere.com/)
+
+---
+
+## ⚡ Tecnologias
+
+- **Python 3.8+**
+- **Django 4+**
+- **SQLite** (desenvolvimento)
+- **Charts.js** (relatórios e gráficos)
+- HTML / CSS / JS
+
+---
+
+## 🚀 Funcionalidades
+
+### 👤 Controle de usuários
+- Tipos: **Empresa**, **Candidato**, **Admin**
+- Login via **email** (username = email) + senha
+
+### 💼 Vagas
+- Criar, editar e deletar vagas
+- Campos obrigatórios:
+  - Nome da vaga
+  - Faixa salarial
+  - Requisitos
+  - Escolaridade mínima
+- Visualização de candidatos por vaga
+
+### 📝 Candidatura
+- Candidatos podem se candidatar a várias vagas
+- Informações obrigatórias:
+  - Pretensão salarial
+  - Experiência
+  - Última escolaridade
+
+### 📊 Relatórios
+- Gráficos mensais:
+  - Vagas criadas
+  - Candidatos recebidos
+- Sistema de pontos:
+  - 0 pontos = padrão
+  - +1 ponto = faixa salarial compatível
+  - +1 ponto = escolaridade compatível ou superior
+
+---
+
+## ⚙️ Instalação Rápida
+
+```bash
+# Clonar repositório
+git clone git@github.com:bernardoenock/jobconvo_enock.git
+cd jobconvo_enock
+
+# Criar e ativar ambiente virtual
+python -m venv .venv
+source .venv/bin/activate
+
+# Instalar dependências
+pip install -r requirements.txt
+
+# Aplicar migrations
+python manage.py makemigrations
+python manage.py migrate
+
+# Criar superusuário
+python manage.py createsuperuser
+
+# Rodar servidor local
+python manage.py runserver
+````
+
+---
+
+## ✅ Testes
+
+Executar todos os testes:
+
+```bash
+python manage.py test
 ```
 
-## Sistema:
+---
 
-### Controle de usuarios:
-- [] O sitema tem dois usuários. 
-  - [] (Empresa & Candidato) 
-  - [] (Admin)
+## 📊 Dashboard & Pontuação
 
-### Core:
-*Cadastro de usuario*
-- [] Obrigatório o cadastro com email (username = email) e senha.
+* Tela de vagas com número de candidatos
+* Detalhes completos de candidatos
+* Gráficos dinâmicos com Charts.js
+* Sistema de pontuação inteligente para combinar candidatos com perfil da vaga
 
-*Cadastro de vagas*
-- [] Empresa deve criar uma (ou várias) vagas.
+---
 
-*Candidatar para a vaga*
-- [] Candidato deve se candidatar a uma (ou mais) vagas.
+## 👨‍💻 Autor
 
-*Vaga*
-- [] A vaga que a empresa vai criar deve ter:
-  - [] Nome da vaga
-  - [] Faixa salarial:
-    - [] Até 1.000
-    - [] De 1.000 a 2.000
-    - [] De 2.000 a 3.000
-    - [] Acima de 3.000
-  - [] Requisitos
-  - [] Escolaridade mínima:
-    - [] Ensino fundamental
-    - [] Ensino médio
-    - [] Tecnólogo
-    - [] Ensino Superior
-    - [] Pós / MBA / Mestrado
-    - [] Doutorado
-
-*Candidatar*
-- [] O candidato deve informar:
-  - [] Pretensão salarial
-  - [] Experiência
-  - [] Última Escolaridade
-
-
-### Objetivos:
-
-- [] Tela de vagas com número de candidatos.
-
-- [] Ser possível acessar quais candidatos (todos os dados) estão na vaga.
-  
-- [] A empresa tem o poder de editar ou deletar as vagas.
-
-- [] Tela para relatório: implantar o Charts js(ou semelhante) gerando os seguintes gráficos:
-  - [] Vagas criadas por mês
-  - [] Candidatos recebidos por mês
-
-- [] Sistema de pontos (Bônus) |- conseguir pontuar quais candidatos estão dentro do perfil da vaga (faixa salarial + escolaridade):
-- [] (Default) Candidatos = 0 pontos
-- [] Se dentro da faixa salarial, adiciona 1 ponto
-- [] Se dentro ou acima da escolaridade, adiciona 1 ponto
-
-
-
-## Utils scripts
-
-Limpar migrations:
-```shell
-rm -r accounts/migrations/
-rm -r jobs/migrations/
-
-rm db.sqlite3
-
-```
-
-Criar migrations:
-```shell
-python3 manage.py makemigrations accounts jobs
-
-python3 manage.py migrate
-```
-
-Criar super usuario para acessar o admin:
-```shell
-python3 manage.py createsuperuser
-
-```
-
-Levantar servidor:
-```shell
-python3 manage.py runserver
-
-```
-
-Executar os testes:
-```shell
-python3 manage.py test
-
-```
+**Enock** – Desenvolvedor Python & Django
+[GitHub](https://github.com/bernardoenock) | [LinkedIn](https://www.linkedin.com/in/bernardoenock/)
