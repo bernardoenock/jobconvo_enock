@@ -4,7 +4,7 @@
 ![Django](https://img.shields.io/badge/Django-4+-green)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-**JobConvo** é um sistema completo de gestão de vagas e candidaturas.  
+**JobConvo** é um sistema de gestão de vagas e candidaturas.  
 Empresas publicam vagas, candidatos se inscrevem, e relatórios são gerados automaticamente com avaliação de perfil.
 
 **O sistema foi feito para um teste técnico**
