@@ -1,4 +1,3 @@
-/* Reset básico e tipografia */
 * {
   margin: 0;
   padding: 0;
@@ -12,14 +11,12 @@ body {
   line-height: 1.6;
 }
 
-/* Layout Container */
 main {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* Responsividade do Header/Nav */
 .jobconvo-nav {
   display: flex;
   justify-content: space-between;
@@ -34,7 +31,6 @@ main {
   height: 45px;
 }
 
-/* Botão para mobile */
 .menu-toggle {
   display: none;
   background: none;
@@ -44,14 +40,12 @@ main {
   color: #222228;
 }
 
-/* Menu Desktop */
 .menu {
   list-style: none;
   display: flex;
   gap: 20px;
 }
 
-/* Menu Mobile (inicialmente escondido) */
 .menu.open {
   display: flex;
   flex-direction: column;
@@ -64,7 +58,6 @@ main {
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* Media Queries */
 @media (max-width: 768px) {
   .menu {
     display: none;

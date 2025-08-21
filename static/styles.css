@@ -22,7 +22,6 @@
   color: #ffffff;
 }
 
-/* Buttons */
 button, .btn {
   font-family: inherit;
   font-size: 15px;
@@ -40,7 +39,6 @@ button:hover, .btn:hover {
   background-color: #745dd4;
 }
 
-/* Forms */
 form {
   background: #fff;
   padding: 25px;
@@ -59,7 +57,6 @@ input, select, textarea {
   font-size: 15px;
 }
 
-/* Job List */
 ul.jobs-list, ul.jobs-list li {
   list-style: none;
   margin: 0;
@@ -80,7 +77,6 @@ ul.jobs-list li:hover {
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-
 .auth-container {
   max-width: 400px;
   margin: 50px auto;
@@ -90,7 +86,6 @@ ul.jobs-list li:hover {
   margin-bottom: 20px;
 }
 
-/* Chart container styling */
 .chart-card {
   background: #fff;
   padding: 20px;
