@@ -1,23 +1,27 @@
 {% extends 'base.html' %}
 {% block title %}Jobs{% endblock %}
 {% block content %}
-<div class="container">
-  <h1>Jobs</h1>
+<div class="jobs-container">
+  <h1 class="jobs-title">Vagas Disponíveis</h1>
 
   {% if user.company %}
-  <a href="{% url 'jobs:job_create' %}" class="btn mb-3">Criar nova vaga</a>
+  <div class="create-job-container">
+    <a href="{% url 'jobs:job_create' %}" class="btn btn-create-job">Criar nova vaga</a>
+  </div>
   {% endif %}
 
-  <ul class="jobs-list">
+
+  <div class="jobs-grid">
     {% for job in jobs %}
-    <li>
-      <a href="{% url 'jobs:job_detail' job.pk %}">{{ job.title }}</a>
-      — {{ job.get_salary_band_display }} — {{ job.get_min_education_display }}
-      — Candidates: {{ job.app_count }}
-    </li>
+    <a href="{% url 'jobs:job_detail' job.pk %}" class="job-card">
+      <h2>{{ job.title }}</h2>
+      <p><strong>Faixa Salarial:</strong> {{ job.get_salary_band_display }}</p>
+      <p><strong>Educação Mínima:</strong> {{ job.get_min_education_display }}</p>
+      <p><strong>Candidatos:</strong> {{ job.app_count }}</p>
+    </a>
     {% empty %}
-    <li>No jobs yet</li>
+    <p class="no-jobs">Nenhuma vaga cadastrada ainda 🚀</p>
     {% endfor %}
-  </ul>
+  </div>
 </div>
 {% endblock %}

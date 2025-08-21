@@ -1,43 +1,62 @@
 {% extends 'base.html' %}
 {% block title %}{{ job.title }}{% endblock %}
 {% block content %}
-<div class="container">
-  <h1>{{ job.title }}</h1>
-  <p><strong>Empresa:</strong> {{ job.company.name }}</p>
-  <p><strong>Faixa Salarial:</strong> {{ job.get_salary_band_display }}</p>
-  <p><strong>Escolaridade Mínima:</strong> {{ job.get_min_education_display }}</p>
-  <p><strong>Requisitos:</strong> {{ job.requirements }}</p>
+<div class="job-detail-container">
+
+  <div class="back-btn-container">
+    <a href="{% url 'jobs:job_list' %}" class="btn btn-back">← Voltar para Vagas</a>
+  </div>
+
+  <div class="job-detail-card">
+    <h1 class="job-detail-title">{{ job.title }}</h1>
+    <p><strong>Empresa:</strong> {{ job.company.name }}</p>
+    <p><strong>Faixa Salarial:</strong> {{ job.get_salary_band_display }}</p>
+    <p><strong>Escolaridade Mínima:</strong> {{ job.get_min_education_display }}</p>
+    <p><strong>Requisitos:</strong> {{ job.requirements }}</p>
+  </div>
+
+  <div class="job-actions">
+    {% if user.is_authenticated %}
+    {% if user.company and job.company == user.company %}
+    <a href="{% url 'jobs:job_update' job.pk %}" class="btn">Editar Vaga</a>
+    <a href="{% url 'jobs:job_delete' job.pk %}" class="btn btn-danger">Apagar Vaga</a>
+    {% elif user.candidate %}
+    {% if not has_applied %}
+    <a href="{% url 'jobs:apply' job.pk %}" class="btn">Candidatar-se</a>
+    {% else %}
+    <p class="applied-msg">Você já aplicou para esta vaga ✅</p>
+    {% endif %}
+    {% endif %}
+    {% else %}
+    <p><a href="{% url 'accounts:login' %}">Faça login</a> como candidato para se inscrever.</p>
+    {% endif %}
+  </div>
+
+
+  {% if user.is_authenticated and user.company and job.company == user.company %}
+  <div class="back-btn-container">
+    <a href="{% url 'jobs:candidate_list' job.pk %}" class="btn btn-secondary">Visualizar Candidatos</a>
+  </div>
+  {% endif %}
 
   {% if applications %}
-  <h2>Candidatos</h2>
-  <ul class="jobs-list">
-    {% for application in applications %}
-    <li>
-      <strong>Email:</strong> {{ application.candidate.user.email }}<br>
-      <strong>Pretensão Salarial:</strong> R$ {{ application.salary_expectation }}<br>
-      <strong>Última Escolaridade:</strong> {{ application.get_candidate_last_education_display }}<br>
-      <strong>Experiência:</strong> {{ application.candidate_experience }}<br>
-      <strong>Pontuação:</strong> {{ application.score }}
-    </li>
-    {% empty %}
-    <li>Ainda não há candidatos para esta vaga.</li>
-    {% endfor %}
-  </ul>
+  <div class="applications-card">
+    <h2>Candidatos</h2>
+    <ul class="applications-list">
+      {% for application in applications %}
+      <li class="application-item">
+        <p><strong>Email:</strong> {{ application.candidate.user.email }}</p>
+        <p><strong>Pretensão Salarial:</strong> R$ {{ application.salary_expectation }}</p>
+        <p><strong>Última Escolaridade:</strong> {{ application.get_candidate_last_education_display }}</p>
+        <p><strong>Experiência:</strong> {{ application.candidate_experience }}</p>
+        <p><strong>Pontuação:</strong> {{ application.score }}</p>
+      </li>
+      {% empty %}
+      <p class="no-apps">Ainda não há candidatos para esta vaga.</p>
+      {% endfor %}
+    </ul>
+  </div>
   {% endif %}
 
-  {% if user.is_authenticated %}
-  {% if user.company and job.company == user.company %}
-  <a href="{% url 'jobs:job_update' job.pk %}" class="btn btn-primary">Editar Vaga</a>
-  <a href="{% url 'jobs:job_delete' job.pk %}" class="btn btn-danger">Apagar Vaga</a>
-  {% elif user.candidate %}
-  {% if not has_applied %}
-  <a href="{% url 'jobs:apply' job.pk %}" class="btn">Candidatar-se</a>
-  {% else %}
-  <p>Você já aplicou para esta vaga ✅</p>
-  {% endif %}
-  {% endif %}
-  {% else %}
-  <p><a href="{% url 'accounts:login' %}">Faça login</a> como candidato para se inscrever.</p>
-  {% endif %}
 </div>
 {% endblock %}
